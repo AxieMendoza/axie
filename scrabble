@@ -1,0 +1,81 @@
+import random
+import string
+
+# Letter scores based on Scrabble rules
+letter_scores = {
+    'a': 1, 'b': 3, 'c': 3, 'd': 2, 'e': 1, 'f': 4, 'g': 2, 'h': 4,
+    'i': 1, 'j': 8, 'k': 5, 'l': 1, 'm': 3, 'n': 1, 'o': 1, 'p': 3,
+    'q': 10, 'r': 1, 's': 1, 't': 1, 'u': 1, 'v': 4, 'w': 4, 'x': 8,
+    'y': 4, 'z': 10
+}
+
+# List of valid words (for simplicity, in a real game use a comprehensive dictionary)
+word_list = ["python", "java", "swift", "javascript", "hangman", "programming", "developer", "data", "science"]
+
+# Generate a random rack of 7 letters
+def generate_rack():
+    return random.choices(string.ascii_lowercase, k=7)
+
+# Calculate the score of a word
+def calculate_score(word):
+    return sum(letter_scores[letter] for letter in word)
+
+# Check if the word can be formed from the rack
+def is_valid_word(word, rack):
+    rack_copy = list(rack)
+    for letter in word:
+        if letter in rack_copy:
+            rack_copy.remove(letter)
+        else:
+            return False
+    return True
+
+# Initialize a 15x15 Scrabble board
+def initialize_board():
+    return [[' ' for _ in range(15)] for _ in range(15)]
+
+# Display the board
+def display_board(board):
+    print("  " + " ".join([str(i).zfill(2) for i in range(15)]))
+    for i, row in enumerate(board):
+        print(str(i).zfill(2), " ".join(row))
+
+# Place a word on the board
+def place_word_on_board(board, word, row, col, direction):
+    if direction == 'H':
+        for i in range(len(word)):
+            board[row][col + i] = word[i]
+    elif direction == 'V':
+        for i in range(len(word)):
+            board[row + i][col] = word[i]
+
+def scrabble():
+    board = initialize_board()
+    rack = generate_rack()
+    print("Welcome to Scrabble!")
+    
+    while True:
+        display_board(board)
+        print("Your letter rack:", rack)
+        
+        word = input("Form a word from your rack (or type 'quit' to exit): ").lower()
+        if word == 'quit':
+            break
+        elif word in word_list and is_valid_word(word, rack):
+            try:
+                row = int(input("Enter the row (0-14) to place the word: "))
+                col = int(input("Enter the column (0-14) to place the word: "))
+                direction = input("Enter direction (H for horizontal, V for vertical): ").upper()
+                if (direction == 'H' and col + len(word) <= 15) or (direction == 'V' and row + len(word) <= 15):
+                    place_word_on_board(board, word, row, col, direction)
+                    score = calculate_score(word)
+                    print(f"Valid word! Your score for '{word}' is {score} points.")
+                else:
+                    print("Word doesn't fit on the board in that direction. Try again.")
+            except ValueError:
+                print("Invalid input. Please enter numbers for row and column.")
+        else:
+            print("Invalid word or cannot be formed from the rack. Try again.")
+
+if __name__ == "__main__":
+    scrabble()
